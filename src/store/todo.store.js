@@ -24,13 +24,25 @@ const state = {
 // es para llamar la informacion del storage para cargar la data y hacerla persistente
 
 const initStore = ()=> {
-    console.log(state);
+    loadStore();
+    console.log('Init store');
 }
 
 const loadStore = ()=> {
-    throw new Error('Not implemented');
+    if(!localStorage.getItem('state')) return;
+    
+    const {todos = [], filter = Filters.All} = JSON.parse(localStorage.getItem('state'));
+
+    state.todos = todos;
+    state.filter = filter;
+
 }
 
+const saveStateToLOcalStorage = () => {
+    //EL JSON.stringify  es una funcion que convierte cualquier cosa en string
+    localStorage.setItem('state', JSON.stringify(state));
+}
+ 
 const getTodos = (filter = Filters.All) => {
     switch (filter) {
         case Filters.All:
@@ -51,6 +63,7 @@ const addTodo = ( description )=> {
     if(!description) throw new Error(`Description must be provided`);
 
     state.todos.push(new Todo (description));
+    saveStateToLOcalStorage();
 }
 
 //cambia el estado del todo de verdadero a falso
@@ -61,22 +74,30 @@ const toggleTodo = ( todoId )=> {
         if(todo.id === todoId) {
             todo.done = !todo.done;
         }
-
     return todo;
     })
+    saveStateToLOcalStorage();
+
 }
 
 const deleteTodo = ( todoId )=> {
     state.todos = state.todos.filter(todo => todo.id !== todoId );
 
+    saveStateToLOcalStorage();
+
+
 }
 
 const deleteCompleted = () => {
     state.todos = state.todos.filter(todo => todo.done);
+    saveStateToLOcalStorage();
+
 }
 
 const setFilter = (newFilter = Filters.All) => {
     state.filter = newFilter;
+    saveStateToLOcalStorage();
+
 
 }
 

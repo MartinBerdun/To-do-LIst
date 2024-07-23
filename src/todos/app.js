@@ -8,6 +8,8 @@ import html from './app.html?raw'
 
 const ElementIds = {
     TodoList : ".todo-list",
+    newTodoImput : '#new-todo-input',
+    destroyTodo : '.destroy'
 }
 
 /**
@@ -38,5 +40,47 @@ export const App = (elementId) => {
         document.querySelector(elementId).append( app );
         displayTodos();
     })();
+
+    //referencias html
+
+    const newDescriptionInput = document.querySelector(ElementIds.newTodoImput);
+    const todoListUl = document.querySelector(ElementIds.TodoList)
+
+    //listeners
+    //el keyup es para cuando se apreta un atecla y se la suelta
+    newDescriptionInput.addEventListener('keyup', (event) => {
+
+        /* console.log(event.target.value); */ //captura lo que uno escribe 
+
+        //tecla enter
+        if(event.keyCode !== 13) return; //cualquier tecla que yo presione va a sacarme de aqui, no continua la ejecucion.. si yo apreto enter entones hace el resto del codigo que vendria ser el sumar el todo
+
+        //el trim quita lso espacios de mas tanto adelante como atras
+        if(event.target.value.trim().length === 0) return;//no hace nada si no hay ninguna letra
+
+        todoStore.addTodo(event.target.value)//el texto que esta en la caja
+        displayTodos();
+        event.target.value = ''; //para que no se duplique, despues de haberlo insertado que se limpie.
+    })
+
+    todoListUl.addEventListener('click', (event)=>{
+        //busca el elemento html que tenga el data-is mas cercano hacia el padre
+        const element = event.target.closest('[data-id]');
+        //saca el id para saber cual tachar
+        todoStore.toggleTodo(element.getAttribute('data-id'));
+        displayTodos();
+    })
+
+    todoListUl.addEventListener('click', (event)=>{
+        //agarro solo el elemento que tenga ese nombre de clase
+        const isDestroyedElement = event.target.className === 'destroy'; 
+        const element = event.target.closest('[data-id]');
+        
+        if (!element || !isDestroyedElement) return;
+
+        todoStore.deleteTodo(element.getAttribute('data-id'));
+        displayTodos();
+    })
+
 
 }
