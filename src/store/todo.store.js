@@ -2,7 +2,7 @@ import { Todo } from "../todos/models/todo.model"
 
 //el store es para manrener la info en un espacio todo junto para poder consultarla en cualquier moemnto
 
-const Filters = {
+export const Filters = {
     All : 'all',
     Completed : 'Completed',
     Pending : 'Pending',
@@ -89,7 +89,7 @@ const deleteTodo = ( todoId )=> {
 }
 
 const deleteCompleted = () => {
-    state.todos = state.todos.filter(todo => todo.done);
+    state.todos = state.todos.filter(todo => !todo.done);
     saveStateToLOcalStorage();
 
 }

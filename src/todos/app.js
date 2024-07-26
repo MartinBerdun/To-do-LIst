@@ -1,7 +1,7 @@
 //para ejecutar el programa debo correr npm run dev
 //para estos casos no es recomendable usar live server ya que Vite viene con las herramientas necesarias para correr el servidor local.
-import {renderTodos} from './use-cases'
-import todoStore from '../store/todo.store'
+import {renderTodos, renderPending} from './use-cases'
+import todoStore, { Filters } from '../store/todo.store'
 import html from './app.html?raw'
 //se pone el raw porque vite espera que se importe algo de js pero como no lo es tira error entonces eso es para que lo importe asi nomas sin error
 
@@ -9,10 +9,15 @@ import html from './app.html?raw'
 const ElementIds = {
     TodoList : ".todo-list",
     newTodoImput : '#new-todo-input',
-    destroyTodo : '.destroy'
+    destroyTodo : '.destroy',
+    ClearCompleted : '.clear-completed',
+    TodoFilters : '.filtro',
+    PendingCount : '#pending-count',
+
+
 }
 
-/**
+/**        
  * 
  * @param {String} elementId 
  */
@@ -26,6 +31,12 @@ export const App = (elementId) => {
         const todos = todoStore.getTodos( todoStore.getCurrentFilter());
         
         renderTodos(ElementIds.TodoList, todos)
+        updatePendingCount()
+    }
+
+    //Voy a llamar esta funcion donde yo se que hay posibles cambios
+    const updatePendingCount = () => {
+        renderPending(ElementIds.PendingCount);
     }
 
     //cuando la funcion App() se llama
@@ -41,12 +52,23 @@ export const App = (elementId) => {
         displayTodos();
     })();
 
+    
+    
+    
     //referencias html
 
     const newDescriptionInput = document.querySelector(ElementIds.newTodoImput);
-    const todoListUl = document.querySelector(ElementIds.TodoList)
 
-    //listeners
+    const todoListUl = document.querySelector(ElementIds.TodoList);
+
+    const ClearCompletedButton = document.querySelector(ElementIds.ClearCompleted);
+
+    const filtersLis = document.querySelectorAll(ElementIds.TodoFilters);
+
+
+
+
+    /////////////////////////////////7LISTENERS/////////////////////////////
     //el keyup es para cuando se apreta un atecla y se la suelta
     newDescriptionInput.addEventListener('keyup', (event) => {
 
@@ -81,6 +103,40 @@ export const App = (elementId) => {
         todoStore.deleteTodo(element.getAttribute('data-id'));
         displayTodos();
     })
+
+
+    ClearCompletedButton.addEventListener('click', ()=> {
+        todoStore.deleteCompleted();
+        displayTodos();
+    })
+
+    filtersLis.forEach( element => {
+        
+        element.addEventListener('click', (element)=>{
+            filtersLis.forEach(el =>el.classList.remove('selected'))
+            element.target.classList.add('selected');
+
+            switch(element.target.text){
+                case 'Todos':
+                    todoStore.setFilter(Filters.All)
+                break;
+                case 'Pendientes':
+                    todoStore.setFilter(Filters.Pending)
+                break;
+                case 'Completados':
+                    todoStore.setFilter(Filters.Completed)
+                break;
+            }
+
+            displayTodos();
+
+        })
+    })
+
+
+
+
+
 
 
 }
